@@ -1,8 +1,9 @@
 package runpale;
 import java.sql.*;
+import java.util.Properties ;
 
 public class dbConnector {
-	private static final String DB_URL = "localhost";
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/";
 	private static final String USER = "root";
 	private static final String PASS = "hrf031006";
 	
@@ -10,20 +11,42 @@ public class dbConnector {
 		
 	}
 	//This method is to initialize the Database Connection
-	static Connection conn;
-	public static void StartCon() throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.jdbc.Driver");
+	
+	public static Connection StartCon() {
+		Connection conn;
 		System.out.println("Connecting to database...");
-	    conn = DriverManager.getConnection(DB_URL,USER,PASS);
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			conn = DriverManager.getConnection(DB_URL,USER,PASS);
+			return conn;
+		} catch (Exception e) {
+			 e.printStackTrace() ;
+			// TODO: handle exception
+		}
+		return null;
+	    
 	}
-	public static ResultSet  SendSql(String sql) {
+	public static void SendSql(String sql) {
 		if (conn==null){
 			//If there hasn't a connection, then create one.
-			StartCon();
+			try {
+				StartCon();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		Object stmt = conn.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		return rs;
+		try {
+			Object stmt = conn.createStatement();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//ResultSet rs = stmt.executeQuery(sql);
+		//return rs;
 	}
 	public static ResultSet Select(String TableName,String Name, String Value) {
 		String sql = null;
@@ -62,9 +85,27 @@ public class dbConnector {
 				{"ChineseName","varchar(255) NOT NULL"},
 				{"Major","varchar(255) NOT NULL"},
 				{"Status","varchar(10)"},
-				{"Gender","bit"},
-				{"",""},
+				{"Gender","bit NOT NULL"},
+				{"TOP100","bit NOT NULL"},
+				{"UniversityName","varchar(255)"},
+				{"UniversityCountry","varchar(255)"},
+				{"UniversityCity","varchar(255)"},
+				{"CompanyName","varchar(255)"},
+				{"CompanyCountry","varchar(255)"},
+				{"CompanyCity","varchar(255)"}
 		};
-		CreateTable("Student", ExplainType(Type));
+		CreateTable("Student", Type);
+		//form the table of message for the program
+		String[][] Type1={
+			{"Class","varchar(255)"},
+			{"dbItemName","varchar(255)"},
+			{"enShowName","varchar(255)"},
+			{"cnShowName","varchar(255)"}
+		};
+		CreateTable("dbMessage",Type1);
+
+	}
+	public static Void SetDB(){
+		SetDB("CSTA");
 	}
 }
